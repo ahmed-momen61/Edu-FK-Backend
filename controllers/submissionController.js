@@ -1,12 +1,10 @@
-const db = require('../config/db');
+const { db } = require('../config/db');
 
-exports.submitAssignment = (req, res) => {
+const submitAssignment = (req, res) => {
     const studentId = req.user.id;
     const { assignmentId, instructorId } = req.body;
 
-    if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded." });
-    }
+    if (!req.file) return res.status(400).json({ message: "No file uploaded." });
 
     const filePath = req.file.path;
     const fileType = req.file.mimetype;
@@ -16,16 +14,58 @@ exports.submitAssignment = (req, res) => {
     db.run(query, [assignmentId, studentId, filePath, fileType], function(err) {
         if (err) return res.status(500).json({ error: err.message });
 
-        console.log(`[SUBMISSION] Student ${studentId} uploaded file type: ${fileType}`);
-
-        //Instructor Notification
         if (instructorId) {
-            const notifMsg = `Student ID ${studentId} submitted something.`;
-            db.run(`INSERT INTO NOTIFICATION (USER_ID, MESSAGE) VALUES (?, ?)`, [instructorId, notifMsg], (err) => {
-                if (!err) console.log(`[NOTIF] Sent to Instructor ${instructorId}`);
-            });
+            const notifMsg = `Student ID ${studentId} submitted a new assignment.`;
+            db.run(`INSERT INTO NOTIFICATION (USER_ID, MESSAGE) VALUES (?, ?)`, [instructorId, notifMsg]);
         }
 
-        res.status(201).json({ message: "submitted successfully" });
+        res.status(201).json({ message: "Assignment submitted successfully" });
     });
 };
+
+const getFacultySubmissions = (req, res) => {
+    const instructorId = req.user.id;
+
+    const query = `SELECT S.ID as SubmissionID, S.ASSIGNMENT_ID, S.SUBMITTED_AT, S.FILE_PATH, S.GRADE, S.FEEDBACK, U.FULL_NAME as StudentName, U.ID as StudentID, C.TITLE as CourseTitle FROM SUBMISSION S JOIN USER U ON S.STUDENT_ID = U.ID JOIN COURSES C ON C.INSTRUCTOR_ID = ? WHERE C.ID = S.ASSIGNMENT_ID`;
+
+    db.all(query, [instructorId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+};
+
+const gradeAssignment = (req, res) => {
+    const { submissionId, grade, feedback } = req.body;
+
+    if (!submissionId || grade === undefined || !feedback) {
+        return res.status(400).json({ message: "Submission ID, grade, and feedback are required." });
+    }
+
+    const updateQuery = `UPDATE SUBMISSION SET GRADE = ?, FEEDBACK = ? WHERE ID = ?`;
+    db.run(updateQuery, [grade, feedback, submissionId], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+
+        if (this.changes === 0) return res.status(404).json({ message: "Submission not found." });
+
+        db.get(`SELECT STUDENT_ID FROM SUBMISSION WHERE ID = ?`, [submissionId], (err, row) => {
+            if (row) {
+                const studentId = row.STUDENT_ID;
+                const notifMsg = `Your assignment (ID ${submissionId}) has been graded. Grade: ${grade}`;
+                db.run(`INSERT INTO NOTIFICATION (USER_ID, MESSAGE) VALUES (?, ?)`, [studentId, notifMsg]);
+            }
+        });
+
+        res.json({ message: "Grade and feedback successfully posted." });
+    });
+};
+
+const getStudentGrades = (req, res) => {
+    const studentId = req.user.id;
+    const query = `SELECT S.ID, S.ASSIGNMENT_ID, S.SUBMITTED_AT, S.GRADE, S.FEEDBACK FROM SUBMISSION S WHERE S.STUDENT_ID = ?`;
+    db.all(query, [studentId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+};
+
+module.exports = { submitAssignment, getFacultySubmissions, gradeAssignment, getStudentGrades };
