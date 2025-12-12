@@ -1,7 +1,12 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+<<<<<<< HEAD
 // استخدام Destructuring عشان نجيب الـ db صح زي الـ Travel App
 const { db } = require('../config/db');
+=======
+const db_access = require('../config/db.js');
+const db = db_access.db;
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
 const signToken = (id, role, req) => {
     const userAgent = req.headers['user-agent'] || 'unknown';
@@ -19,6 +24,7 @@ const register = (req, res) => {
     if (role === 'faculty' || role === 'admin') {
         return res.status(403).json({ message: "Faculty/Admin accounts must be created by an existing Admin only." });
     }
+<<<<<<< HEAD
 
     const approvedStatus = 0;
     const salt = bcrypt.genSaltSync(10);
@@ -26,6 +32,14 @@ const register = (req, res) => {
 
     const query = `INSERT INTO USER (FULL_NAME, EMAIL, PASSWORD_HASH, ROLE, IS_APPROVED) VALUES (?, ?, ?, ?, ?)`;
 
+=======
+
+    const approvedStatus = 0;
+    const hash = bcrypt.hashSync(password, 10);
+
+    const query = `INSERT INTO USER (FULL_NAME, EMAIL, PASSWORD_HASH, ROLE, IS_APPROVED) VALUES (?, ?, ?, ?, ?)`;
+
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
     db.run(query, [fullName, email, hash, role, approvedStatus], function(err) {
         if (err) {
             if (err.message.includes('UNIQUE')) return res.status(400).json({ message: "Email already exists" });
@@ -48,9 +62,13 @@ const login = (req, res) => {
 
     db.get(query, [email], (err, user) => {
         if (err) return res.status(500).json({ error: "Database error" });
-
         if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
+<<<<<<< HEAD
+        if (!user) return res.status(401).json({ message: "Invalid credentials" });
+
+=======
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
         if (user.IS_APPROVED === 0) {
             return res.status(401).json({ message: "Your account is currently pending admin approval." });
         }
@@ -94,10 +112,14 @@ const approveRequest = (req, res) => {
 
     db.run(`UPDATE USER SET IS_APPROVED = 1 WHERE ID = ? AND IS_APPROVED = 0`, [userId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
+<<<<<<< HEAD
 
         if (this.changes === 0) {
             return res.status(404).json({ message: "User not found or already approved." });
         }
+=======
+        if (this.changes === 0) return res.status(404).json({ message: "User not found or already approved." });
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
         const studentNotifMsg = "Your registration request has been approved! You can now log in.";
         db.run(`INSERT INTO NOTIFICATION (USER_ID, MESSAGE) VALUES (?, ?)`, [userId, studentNotifMsg]);
@@ -135,6 +157,7 @@ const changePassword = (req, res) => {
     const { oldPassword, newPassword } = req.body;
     const userId = req.user.id;
 
+<<<<<<< HEAD
     if (!oldPassword || !newPassword) {
         return res.status(400).json({ message: "Old password and new password are required." });
     }
@@ -144,11 +167,23 @@ const changePassword = (req, res) => {
 
         const isMatch = bcrypt.compareSync(oldPassword, row.PASSWORD_HASH);
         if (!isMatch) {
+=======
+    if (!oldPassword || !newPassword) return res.status(400).json({ message: "Passwords required." });
+
+    db.get(`SELECT PASSWORD_HASH FROM USER WHERE ID = ?`, [userId], (err, row) => {
+        if (!row) return res.status(404).json({ message: "User not found." });
+
+        if (!bcrypt.compareSync(oldPassword, row.PASSWORD_HASH)) {
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
             return res.status(401).json({ message: "Incorrect old password." });
         }
 
         const newHash = bcrypt.hashSync(newPassword, 10);
+<<<<<<< HEAD
         db.run(`UPDATE USER SET PASSWORD_HASH = ? WHERE ID = ?`, [newHash, userId], function(err) {
+=======
+        db.run(`UPDATE USER SET PASSWORD_HASH = ? WHERE ID = ?`, [newHash, userId], (err) => {
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Password changed successfully." });
         });
@@ -158,21 +193,30 @@ const changePassword = (req, res) => {
 const adminResetUserPassword = (req, res) => {
     const { userId, newPassword } = req.body;
 
+<<<<<<< HEAD
     if (!userId || !newPassword) {
         return res.status(400).json({ message: "User ID and new temporary password are required." });
     }
+=======
+    if (!userId || !newPassword) return res.status(400).json({ message: "User ID and new password are required." });
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
     const newHash = bcrypt.hashSync(newPassword, 10);
 
     db.run(`UPDATE USER SET PASSWORD_HASH = ? WHERE ID = ?`, [newHash, userId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
+<<<<<<< HEAD
 
         if (this.changes === 0) return res.status(404).json({ message: "User not found." });
 
+=======
+        if (this.changes === 0) return res.status(404).json({ message: "User not found." });
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
         res.json({ message: "Password reset successfully." });
     });
 };
 
+<<<<<<< HEAD
 const createFaculty = (req, res) => {
     const { fullName, email, password } = req.body;
 
@@ -196,6 +240,8 @@ const createFaculty = (req, res) => {
 };
 
 
+=======
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 module.exports = {
     register,
     login,
@@ -204,6 +250,10 @@ module.exports = {
     approveRequest,
     getProfile,
     changePassword,
+<<<<<<< HEAD
     adminResetUserPassword,
     createFaculty
+=======
+    adminResetUserPassword
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 };

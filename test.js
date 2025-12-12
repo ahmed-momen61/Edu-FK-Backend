@@ -13,7 +13,11 @@ var testUsers = [
     { fullName: "Dr. Amira", email: "amira.mod@tkh.edu.eg", role: "faculty", password: "amira_pass_123", approved: 1 },
     { fullName: "Eng. Heidy", email: "heidy.la@tkh.edu.eg", role: "faculty", password: "heidy_pass_123", approved: 1 },
 
+<<<<<<< HEAD
     { fullName: "Ahmed Mo'men", email: "aa2301532@tkh.edu.eg", role: "student", password: "ahmed_pass_23", approved: 1 },
+=======
+    { fullName: "Ahmed Mo'men", email: "aa2301532@tkh.edu.eg", role: "student", password: "ahmed_pass_2023", approved: 1 },
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
     { fullName: "Karim Abdullah", email: "ka2301533@tkh.edu.eg", role: "student", password: "karim_pass_1", approved: 1 },
     { fullName: "Mohamed Hazem", email: "mh2301534@tkh.edu.eg", role: "student", password: "hazem_pass_2", approved: 1 },
     { fullName: "Mohamed Khaled", email: "mk2301535@tkh.edu.eg", role: "student", password: "khaled_pass_3", approved: 1 },
@@ -29,6 +33,12 @@ var courseData = [
     { title: "Digital Forensics", code: "DF202", instructorId: 5 },
     { title: "Foundation of Networks", code: "FON303", instructorId: 7 },
 ];
+<<<<<<< HEAD
+=======
+
+db.serialize(function() {
+    console.log("Starting Database Seeding...");
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
 db.serialize(function() {
     console.log("Starting Database Seeding...");
@@ -39,16 +49,30 @@ db.serialize(function() {
     db.run("DROP TABLE IF EXISTS SUBMISSION");
     db.run("DROP TABLE IF EXISTS NOTIFICATION");
 
+<<<<<<< HEAD
     db.run("DROP TABLE IF EXISTS USER", function() {
 
+=======
+
+    db.run("DROP TABLE IF EXISTS USER", function() {
+
+
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
         db.run(db_strings.createUserTable);
         db.run(db_strings.createCoursesTable);
         db.run(db_strings.createEnrollmentTable);
         db.run(db_strings.createSubmissionTable);
         db.run(db_strings.createNotificationTable);
 
+<<<<<<< HEAD
         db.run(db_strings.createAnnouncementTable, function() {
 
+=======
+
+        db.run(db_strings.createAnnouncementTable, function() {
+
+
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
             var userStmt = db.prepare("INSERT INTO USER (FULL_NAME, EMAIL, PASSWORD_HASH, ROLE, IS_APPROVED) VALUES (?, ?, ?, ?, ?)");
             testUsers.forEach(function(user) {
                 var passHash = bcrypt.hashSync(user.password, 10);
@@ -57,6 +81,10 @@ db.serialize(function() {
             userStmt.finalize();
             console.log("Users inserted.");
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
             var courseStmt = db.prepare("INSERT INTO COURSES (TITLE, CODE, INSTRUCTOR_ID) VALUES (?, ?, ?)");
             courseData.forEach(function(course) {
                 courseStmt.run(course.title, course.code, course.instructorId);

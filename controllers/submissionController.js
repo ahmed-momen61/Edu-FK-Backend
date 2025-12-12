@@ -1,17 +1,28 @@
+<<<<<<< HEAD
 const { db } = require('../config/db');
 
 const submitAssignment = (req, res) => {
     const studentId = req.user.id;
+=======
+const db_access = require('../config/db.js');
+const db = db_access.db;
+
+const submitAssignment = (req, res) => {
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
     const { assignmentId, instructorId } = req.body;
+    const studentId = req.user.id;
 
     if (!req.file) return res.status(400).json({ message: "No file uploaded." });
+<<<<<<< HEAD
 
     const filePath = req.file.path;
     const fileType = req.file.mimetype;
+=======
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
     const query = `INSERT INTO SUBMISSION (ASSIGNMENT_ID, STUDENT_ID, FILE_PATH, FILE_TYPE) VALUES (?, ?, ?, ?)`;
 
-    db.run(query, [assignmentId, studentId, filePath, fileType], function(err) {
+    db.run(query, [assignmentId, studentId, req.file.path, req.file.mimetype], function(err) {
         if (err) return res.status(500).json({ error: err.message });
 
         if (instructorId) {
@@ -26,7 +37,16 @@ const submitAssignment = (req, res) => {
 const getFacultySubmissions = (req, res) => {
     const instructorId = req.user.id;
 
+<<<<<<< HEAD
     const query = `SELECT S.ID as SubmissionID, S.ASSIGNMENT_ID, S.SUBMITTED_AT, S.FILE_PATH, S.GRADE, S.FEEDBACK, U.FULL_NAME as StudentName, U.ID as StudentID, C.TITLE as CourseTitle FROM SUBMISSION S JOIN USER U ON S.STUDENT_ID = U.ID JOIN COURSES C ON C.INSTRUCTOR_ID = ? WHERE C.ID = S.ASSIGNMENT_ID`;
+=======
+    const query = `SELECT S.ID as SubmissionID, S.ASSIGNMENT_ID, S.SUBMITTED_AT, S.FILE_PATH, S.GRADE, S.FEEDBACK, 
+                   U.FULL_NAME as StudentName, U.ID as StudentID, C.TITLE as CourseTitle 
+                   FROM SUBMISSION S 
+                   JOIN USER U ON S.STUDENT_ID = U.ID 
+                   JOIN COURSES C ON C.INSTRUCTOR_ID = ? 
+                   WHERE C.ID = S.ASSIGNMENT_ID`;
+>>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
     db.all(query, [instructorId], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
