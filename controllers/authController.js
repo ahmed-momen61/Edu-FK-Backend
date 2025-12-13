@@ -1,12 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-<<<<<<< HEAD
-// استخدام Destructuring عشان نجيب الـ db صح زي الـ Travel App
 const { db } = require('../config/db');
-=======
-const db_access = require('../config/db.js');
-const db = db_access.db;
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
 const signToken = (id, role, req) => {
     const userAgent = req.headers['user-agent'] || 'unknown';
@@ -24,7 +18,6 @@ const register = (req, res) => {
     if (role === 'faculty' || role === 'admin') {
         return res.status(403).json({ message: "Faculty/Admin accounts must be created by an existing Admin only." });
     }
-<<<<<<< HEAD
 
     const approvedStatus = 0;
     const salt = bcrypt.genSaltSync(10);
@@ -32,14 +25,6 @@ const register = (req, res) => {
 
     const query = `INSERT INTO USER (FULL_NAME, EMAIL, PASSWORD_HASH, ROLE, IS_APPROVED) VALUES (?, ?, ?, ?, ?)`;
 
-=======
-
-    const approvedStatus = 0;
-    const hash = bcrypt.hashSync(password, 10);
-
-    const query = `INSERT INTO USER (FULL_NAME, EMAIL, PASSWORD_HASH, ROLE, IS_APPROVED) VALUES (?, ?, ?, ?, ?)`;
-
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
     db.run(query, [fullName, email, hash, role, approvedStatus], function(err) {
         if (err) {
             if (err.message.includes('UNIQUE')) return res.status(400).json({ message: "Email already exists" });
@@ -48,7 +33,6 @@ const register = (req, res) => {
 
         const adminId = 1;
         const notifMsg = `NEW REGISTRATION REQUEST: User ${fullName} (${email}) requires approval.`;
-
         db.run(`INSERT INTO NOTIFICATION (USER_ID, MESSAGE) VALUES (?, ?)`, [adminId, notifMsg]);
 
         res.status(201).json({ message: "Registration successful. Please wait for admin approval to log in." });
@@ -57,21 +41,12 @@ const register = (req, res) => {
 
 const login = (req, res) => {
     const { email, password } = req.body;
-
     const query = `SELECT * FROM USER WHERE EMAIL = ?`;
 
     db.get(query, [email], (err, user) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!user) return res.status(401).json({ message: "Invalid credentials" });
-
-<<<<<<< HEAD
-        if (!user) return res.status(401).json({ message: "Invalid credentials" });
-
-=======
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
-        if (user.IS_APPROVED === 0) {
-            return res.status(401).json({ message: "Your account is currently pending admin approval." });
-        }
+        if (user.IS_APPROVED === 0) return res.status(401).json({ message: "Your account is currently pending admin approval." });
 
         const isMatch = bcrypt.compareSync(password, user.PASSWORD_HASH);
         if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
@@ -107,19 +82,11 @@ const getPendingRequests = (req, res) => {
 
 const approveRequest = (req, res) => {
     const { userId } = req.body;
-
     if (!userId) return res.status(400).json({ message: "User ID is required." });
 
     db.run(`UPDATE USER SET IS_APPROVED = 1 WHERE ID = ? AND IS_APPROVED = 0`, [userId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-<<<<<<< HEAD
-
-        if (this.changes === 0) {
-            return res.status(404).json({ message: "User not found or already approved." });
-        }
-=======
         if (this.changes === 0) return res.status(404).json({ message: "User not found or already approved." });
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
         const studentNotifMsg = "Your registration request has been approved! You can now log in.";
         db.run(`INSERT INTO NOTIFICATION (USER_ID, MESSAGE) VALUES (?, ?)`, [userId, studentNotifMsg]);
@@ -130,16 +97,12 @@ const approveRequest = (req, res) => {
 
 const getProfile = (req, res) => {
     const userId = req.user.id;
-
     db.get(`SELECT ID, FULL_NAME, EMAIL, ROLE, CREATED_AT FROM USER WHERE ID = ?`, [userId], (err, user) => {
         if (err || !user) return res.status(404).json({ message: "User not found" });
 
         let courseQuery = "";
-        if (user.ROLE === 'student') {
-            courseQuery = `SELECT C.TITLE, C.CODE FROM COURSES C JOIN ENROLLMENT E ON C.ID = E.COURSE_ID WHERE E.STUDENT_ID = ?`;
-        } else if (user.ROLE === 'faculty') {
-            courseQuery = `SELECT TITLE, CODE FROM COURSES WHERE INSTRUCTOR_ID = ?`;
-        }
+        if (user.ROLE === 'student') courseQuery = `SELECT C.TITLE, C.CODE FROM COURSES C JOIN ENROLLMENT E ON C.ID = E.COURSE_ID WHERE E.STUDENT_ID = ?`;
+        else if (user.ROLE === 'faculty') courseQuery = `SELECT TITLE, CODE FROM COURSES WHERE INSTRUCTOR_ID = ?`;
 
         if (courseQuery) {
             db.all(courseQuery, [userId], (err, courses) => {
@@ -157,33 +120,12 @@ const changePassword = (req, res) => {
     const { oldPassword, newPassword } = req.body;
     const userId = req.user.id;
 
-<<<<<<< HEAD
-    if (!oldPassword || !newPassword) {
-        return res.status(400).json({ message: "Old password and new password are required." });
-    }
-
-    db.get(`SELECT PASSWORD_HASH FROM USER WHERE ID = ?`, [userId], (err, row) => {
-        if (err || !row) return res.status(500).json({ error: "User not found." });
-
-        const isMatch = bcrypt.compareSync(oldPassword, row.PASSWORD_HASH);
-        if (!isMatch) {
-=======
-    if (!oldPassword || !newPassword) return res.status(400).json({ message: "Passwords required." });
-
     db.get(`SELECT PASSWORD_HASH FROM USER WHERE ID = ?`, [userId], (err, row) => {
         if (!row) return res.status(404).json({ message: "User not found." });
-
-        if (!bcrypt.compareSync(oldPassword, row.PASSWORD_HASH)) {
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
-            return res.status(401).json({ message: "Incorrect old password." });
-        }
+        if (!bcrypt.compareSync(oldPassword, row.PASSWORD_HASH)) return res.status(401).json({ message: "Incorrect old password." });
 
         const newHash = bcrypt.hashSync(newPassword, 10);
-<<<<<<< HEAD
-        db.run(`UPDATE USER SET PASSWORD_HASH = ? WHERE ID = ?`, [newHash, userId], function(err) {
-=======
         db.run(`UPDATE USER SET PASSWORD_HASH = ? WHERE ID = ?`, [newHash, userId], (err) => {
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Password changed successfully." });
         });
@@ -192,44 +134,22 @@ const changePassword = (req, res) => {
 
 const adminResetUserPassword = (req, res) => {
     const { userId, newPassword } = req.body;
-
-<<<<<<< HEAD
-    if (!userId || !newPassword) {
-        return res.status(400).json({ message: "User ID and new temporary password are required." });
-    }
-=======
-    if (!userId || !newPassword) return res.status(400).json({ message: "User ID and new password are required." });
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
-
     const newHash = bcrypt.hashSync(newPassword, 10);
 
     db.run(`UPDATE USER SET PASSWORD_HASH = ? WHERE ID = ?`, [newHash, userId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-<<<<<<< HEAD
-
         if (this.changes === 0) return res.status(404).json({ message: "User not found." });
-
-=======
-        if (this.changes === 0) return res.status(404).json({ message: "User not found." });
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
         res.json({ message: "Password reset successfully." });
     });
 };
 
-<<<<<<< HEAD
 const createFaculty = (req, res) => {
     const { fullName, email, password } = req.body;
-
-    if (!fullName || !email || !password) {
-        return res.status(400).json({ message: "All fields are required." });
-    }
-
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
     const approved = 1;
 
     const query = `INSERT INTO USER (FULL_NAME, EMAIL, PASSWORD_HASH, ROLE, IS_APPROVED) VALUES (?, ?, ?, 'faculty', ?)`;
-
     db.run(query, [fullName, email, hash, approved], function(err) {
         if (err) {
             if (err.message.includes('UNIQUE')) return res.status(400).json({ message: "Email already exists" });
@@ -239,21 +159,4 @@ const createFaculty = (req, res) => {
     });
 };
 
-
-=======
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
-module.exports = {
-    register,
-    login,
-    logout,
-    getPendingRequests,
-    approveRequest,
-    getProfile,
-    changePassword,
-<<<<<<< HEAD
-    adminResetUserPassword,
-    createFaculty
-=======
-    adminResetUserPassword
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
-};
+module.exports = { register, login, logout, getPendingRequests, approveRequest, getProfile, changePassword, adminResetUserPassword, createFaculty };

@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 const { db } = require('../config/db');
-=======
-const db_access = require('../config/db.js');
-const db = db_access.db;
->>>>>>> 63e917003e7ee29c7dc8af3dd2aadbbad6d6985c
 
 const createAnnouncement = (req, res) => {
     const { courseId, title, content } = req.body;
