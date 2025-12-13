@@ -5,13 +5,13 @@ const bcrypt = require('bcryptjs');
 
 const testUsers = [
     { fullName: "Hassan Al-Hakamdar", email: "hassan.admin@tkh.edu.eg", role: "admin", password: "hassan_pass_admin", approved: 1 },
-    { fullName: "Dr. Amir Tarek", email: "amir.tarek@tkh.edu.eg", role: "faculty", password: "amir_pass_123", approved: 1 },
-    { fullName: "Eng. Mariam Abdelati", email: "mariam.abdelati@tkh.edu.eg", role: "faculty", password: "mariam_pass_123", approved: 1 },
-    { fullName: "Eng. Nour", email: "nour.ta@tkh.edu.eg", role: "faculty", password: "nour_pass_123", approved: 1 },
-    { fullName: "Dr. Haitham Gawish", email: "haitham.gawish@tkh.edu.eg", role: "faculty", password: "haitham_pass_123", approved: 1 },
-    { fullName: "Eng. Karim El Debais", email: "karim.dbais@tkh.edu.eg", role: "faculty", password: "karim_la_pass_123", approved: 1 },
-    { fullName: "Dr. Amira", email: "amira.mod@tkh.edu.eg", role: "faculty", password: "amira_pass_123", approved: 1 },
-    { fullName: "Eng. Heidy", email: "heidy.la@tkh.edu.eg", role: "faculty", password: "heidy_pass_123", approved: 1 },
+    { fullName: "Amir eldyn", email: "amir.tarek@tkh.edu.eg", role: "faculty", password: "amir_pass_123", approved: 1 },
+    { fullName: "Mariam mosalah", email: "mariam.abdelati@tkh.edu.eg", role: "faculty", password: "mariam_pass_123", approved: 1 },
+    { fullName: "Nour eldyn", email: "nour.ta@tkh.edu.eg", role: "faculty", password: "nour_pass_123", approved: 1 },
+    { fullName: "Haitham elqaad", email: "haitham.gawish@tkh.edu.eg", role: "faculty", password: "haitham_pass_123", approved: 1 },
+    { fullName: "Karim omar", email: "karim.dbais@tkh.edu.eg", role: "faculty", password: "karim_la_pass_123", approved: 1 },
+    { fullName: "Amira osama", email: "amira.mod@tkh.edu.eg", role: "faculty", password: "amira_pass_123", approved: 1 },
+    { fullName: "Heidy elmohamady", email: "heidy.la@tkh.edu.eg", role: "faculty", password: "heidy_pass_123", approved: 1 },
 
     { fullName: "Ahmed Mo'men", email: "aa2301532@tkh.edu.eg", role: "student", password: "ahmed_pass_2023", approved: 1 },
     { fullName: "Karim Abdullah", email: "ka2301533@tkh.edu.eg", role: "student", password: "karim_pass_1", approved: 1 },

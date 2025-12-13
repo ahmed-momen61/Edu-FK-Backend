@@ -1,7 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
+
 const path = require('path');
 
+
 const dbPath = path.resolve(__dirname, '../eduflow.db');
+
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) console.error(err.message);
@@ -18,6 +21,7 @@ const createUserTable = `CREATE TABLE IF NOT EXISTS USER (
     CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP
 )`;
 
+
 const createCoursesTable = `CREATE TABLE IF NOT EXISTS COURSES (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     TITLE TEXT NOT NULL,
@@ -27,6 +31,7 @@ const createCoursesTable = `CREATE TABLE IF NOT EXISTS COURSES (
     FOREIGN KEY (INSTRUCTOR_ID) REFERENCES USER(ID)
 )`;
 
+
 const createEnrollmentTable = `CREATE TABLE IF NOT EXISTS ENROLLMENT (
     STUDENT_ID INTEGER,
     COURSE_ID INTEGER,
@@ -35,7 +40,7 @@ const createEnrollmentTable = `CREATE TABLE IF NOT EXISTS ENROLLMENT (
     FOREIGN KEY (COURSE_ID) REFERENCES COURSES(ID)
 )`;
 
-// ✅ MODIFIED: Added TITLE column
+
 const createSubmissionTable = `CREATE TABLE IF NOT EXISTS SUBMISSION (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     ASSIGNMENT_ID INTEGER,
@@ -49,6 +54,7 @@ const createSubmissionTable = `CREATE TABLE IF NOT EXISTS SUBMISSION (
     FOREIGN KEY (STUDENT_ID) REFERENCES USER(ID)
 )`;
 
+
 const createNotificationTable = `CREATE TABLE IF NOT EXISTS NOTIFICATION (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     USER_ID INTEGER,
@@ -57,6 +63,7 @@ const createNotificationTable = `CREATE TABLE IF NOT EXISTS NOTIFICATION (
     CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (USER_ID) REFERENCES USER(ID)
 )`;
+
 
 const createAnnouncementTable = `CREATE TABLE IF NOT EXISTS ANNOUNCEMENT (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
